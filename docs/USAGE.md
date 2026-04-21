@@ -63,9 +63,9 @@ gitlab-mcp:
 3. Create an immutable Git tag `vX.Y.Z`.
 4. Push tag to GitHub.
 5. GitHub Actions builds and publishes:
-   - image: `ghcr.io/forterro/mcp-gitlab-server:<version>`
-   - chart: `oci://ghcr.io/forterro/charts/gitlab-mcp-<version>.tgz`
-6. Promote the resulting chart version through Kargo.
+  - image: `<container-registry>/<image-name>:<version>`
+  - chart: `oci://<oci-registry>/<chart-name>-<version>.tgz`
+6. Promote the resulting chart version through your deployment workflow.
 
 ## Operational Notes
 

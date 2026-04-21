@@ -2,7 +2,7 @@
 
 ## Scope
 
-This document explains the runtime architecture used by the Forterro fork of `mcp-gitlab-server`, including transport modes, authentication strategies, and deployment boundaries.
+This document explains the runtime architecture used by the GitLab MCP server, including transport modes, authentication strategies, and deployment boundaries.
 
 ## High-Level Components
 
@@ -51,9 +51,8 @@ This document explains the runtime architecture used by the Forterro fork of `mc
 ## Deployment Boundaries
 
 1. Application image and chart are built by GitHub Actions.
-2. Chart publication target: `oci://ghcr.io/forterro/charts`.
-3. Kargo consumes chart versions from OCI registry.
-4. ArgoCD applies promoted versions to clusters.
+2. Images and charts are published to the configured container and OCI registries.
+3. Runtime deployment is handled by the target environment's release workflow.
 
 ## Security Notes
 
