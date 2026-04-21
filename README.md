@@ -220,7 +220,8 @@ The workflow `.github/workflows/build.yml` now:
 
 - **[Product Vision & Roadmap](./docs/VISION.md)** — Strategic direction and milestones
 - **[Architecture](./docs/ARCHITECTURE.md)** — Runtime architecture, transports, and auth model
-- **[Usage Guide](./docs/USAGE.md)** — Configuration profiles, release flow, and deployment notes
+- **[Usage Guide](./docs/USAGE.md)** — Configuration, deployment profiles, release workflow, and validation
+- **[Operations Runbook](./docs/OPERATIONS.md)** — Troubleshooting, upgrades, and rollback procedure
 - **[Full Tool Reference](./CLAUDE.md)** — All 60+ tools with examples
 - **[Cursor Integration](./docs/CURSOR_INTEGRATION.md)** — IDE setup guide
 - **[AI Tools Guide](./tools/README.md)** — MR description generator & more
