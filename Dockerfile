@@ -10,7 +10,7 @@ WORKDIR /app
 
 # Install dependencies first for better layer caching
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 # Build TypeScript sources
 COPY tsconfig.json ./
