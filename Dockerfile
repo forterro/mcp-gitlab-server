@@ -36,9 +36,8 @@ ENV NODE_ENV=production \
 
 EXPOSE 3000
 
-# Run as non-root (numeric UID required by K8s runAsNonRoot)
-RUN adduser -D -h /home/mcp -s /bin/sh -u 1000 mcp && \
-    chown -R 1000:1000 /app
-USER 1000
+# Run as non-root using built-in node user (uid 1000)
+RUN chown -R node:node /app
+USER node
 
 ENTRYPOINT ["node", "dist/index.js"]
