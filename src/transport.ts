@@ -12,25 +12,33 @@ export interface TransportOptions {
    * Port to use for SSE transport (default: 3000)
    */
   port?: number;
-  
+
   /**
    * Whether to use SSE transport (default: false, uses stdio)
    */
   useSSE?: boolean;
+
+  /**
+   * Optional factory function used in OAuth mode.
+   * When provided, a new MCP Server is created per SSE connection
+   * using the Bearer token extracted from the Authorization header.
+   * If absent, the `server` argument is used directly (PAT mode).
+   */
+  serverFactory?: (token: string) => Server;
 }
 
 /**
  * Sets up the appropriate transport for the server based on the options
- * 
- * @param server - The MCP server instance
+ *
+ * @param server - The MCP server instance (PAT mode). Pass null when using serverFactory.
  * @param options - Transport configuration options
  * @returns A promise that resolves when the transport is set up
  */
 export async function setupTransport(
-  server: Server,
+  server: Server | null,
   options: TransportOptions = {}
 ): Promise<void> {
-  const { port = 3000, useSSE = false } = options;
+  const { port = 3000, useSSE = false, serverFactory } = options;
 
   if (useSSE) {
     // Create an object to store active SSE transports by session ID
@@ -57,6 +65,23 @@ export async function setupTransport(
           res.end('ok');
         }
         else if (req.method === 'GET' && pathname === '/sse') {
+          // Determine which server instance to use for this connection
+          let sessionServer: Server;
+          if (serverFactory) {
+            // OAuth mode: extract Bearer token from Authorization header
+            const authHeader = req.headers['authorization'] || '';
+            const match = authHeader.match(/^Bearer\s+(.+)$/i);
+            if (!match) {
+              res.writeHead(401, { 'Content-Type': 'text/plain' });
+              res.end('Unauthorized: missing or invalid Authorization: Bearer <token> header');
+              return;
+            }
+            sessionServer = serverFactory(match[1].trim());
+          } else {
+            // PAT mode: reuse the single pre-built server
+            sessionServer = server!;
+          }
+
           // Create a new SSE transport
           const transport = new SSEServerTransport("/messages", res);
           
@@ -69,7 +94,7 @@ export async function setupTransport(
           });
 
           // Connect the server to the transport
-          await server.connect(transport);
+          await sessionServer.connect(transport);
         }
         else if (req.method === 'POST' && pathname === '/messages') {
           const sessionId = query.sessionId as string;
@@ -102,8 +127,8 @@ export async function setupTransport(
       console.error(`SSE server listening on port ${port}`);
     });
   } else {
-    // Set up stdio transport
+    // Set up stdio transport (PAT mode only — server is always provided)
     const transport = new StdioServerTransport();
-    await server.connect(transport);
+    await server!.connect(transport);
   }
 }

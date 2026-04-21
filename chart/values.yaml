@@ -14,6 +14,11 @@ config:
   USE_SSE: "true"
   GITLAB_API_URL: "https://gitlab.com/api/v4"
   GITLAB_READ_ONLY_MODE: "false"
+  # -- Authentication mode: "pat" (default) or "oauth"
+  # "pat"   : static token from GITLAB_PERSONAL_ACCESS_TOKEN env var / existingSecret
+  # "oauth" : per-connection Bearer token forwarded in the SSE Authorization header
+  #           (requires USE_SSE=true; no static secret needed)
+  AUTH_MODE: "pat"
 
 # -- Sensitive values injected as env vars from a Secret.
 # Set these or use existingSecret.
