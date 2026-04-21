@@ -47,10 +47,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yoda-digital/mcp-gitlab-server.git"
+    "url": "git+https://github.com/forterro/mcp-gitlab-server.git"
   },
   "bugs": {
-    "url": "https://github.com/yoda-digital/mcp-gitlab-server/issues"
+    "url": "https://github.com/forterro/mcp-gitlab-server/issues"
   },
-  "homepage": "https://github.com/yoda-digital/mcp-gitlab-server#readme"
+  "homepage": "https://github.com/forterro/mcp-gitlab-server#readme"
 }

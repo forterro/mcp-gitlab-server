@@ -52,7 +52,11 @@ export async function setupTransport(
       const { pathname, query } = parse(req.url || '', true);
 
       try {
-        if (req.method === 'GET' && pathname === '/sse') {
+        if (req.method === 'GET' && pathname === '/healthz') {
+          res.writeHead(200, { 'Content-Type': 'text/plain' });
+          res.end('ok');
+        }
+        else if (req.method === 'GET' && pathname === '/sse') {
           // Create a new SSE transport
           const transport = new SSEServerTransport("/messages", res);
           

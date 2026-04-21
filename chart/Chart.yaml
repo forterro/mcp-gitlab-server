@@ -1,0 +1,17 @@
+apiVersion: v2
+name: gitlab-mcp
+description: Helm chart for the GitLab MCP Server
+type: application
+version: 0.1.0
+appVersion: "0.3.0"
+
+keywords:
+  - mcp
+  - gitlab
+  - devops
+
+home: https://github.com/forterro/mcp-gitlab-server
+
+maintainers:
+  - name: Forterro IT
+    url: https://github.com/forterro

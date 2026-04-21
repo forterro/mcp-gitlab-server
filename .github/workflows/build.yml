@@ -1,0 +1,86 @@
+name: "Build & Publish"
+
+on:
+  push:
+    branches: [main, "feature/**", "fix/**"]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}  # forterro/mcp-gitlab-server
+  CHART_NAME: gitlab-mcp
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to ghcr.io
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute version
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION="${{ github.ref_name }}"
+            VERSION="${VERSION#v}"
+          else
+            VERSION="0.0.0-$(echo ${{ github.sha }} | cut -c1-7)"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  helm:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    needs: docker
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Log in to ghcr.io (Helm OCI)
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+
+      - name: Update chart version
+        run: |
+          VERSION="${{ needs.docker.outputs.version }}"
+          sed -i "s/^version:.*/version: $VERSION/" chart/Chart.yaml
+          sed -i "s/^appVersion:.*/appVersion: \"$VERSION\"/" chart/Chart.yaml
+          sed -i "s/^  tag: .*/  tag: \"$VERSION\"/" chart/values.yaml
+
+      - name: Package chart
+        run: helm package chart/ --destination .helm-pkg/
+
+      - name: Push chart to ghcr.io
+        run: |
+          VERSION="${{ needs.docker.outputs.version }}"
+          helm push .helm-pkg/${{ env.CHART_NAME }}-$VERSION.tgz oci://${{ env.REGISTRY }}/forterro/charts
