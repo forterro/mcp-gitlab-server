@@ -12,6 +12,7 @@ fullnameOverride: ""
 config:
   PORT: "3000"
   USE_SSE: "true"
+  USE_STREAMABLE_HTTP: "false"
   GITLAB_API_URL: "https://gitlab.com/api/v4"
   GITLAB_READ_ONLY_MODE: "false"
   # -- Authentication mode: "pat" (default) or "oauth"

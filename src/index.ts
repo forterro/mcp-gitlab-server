@@ -143,6 +143,7 @@ const GITLAB_PERSONAL_ACCESS_TOKEN = process.env.GITLAB_PERSONAL_ACCESS_TOKEN;
 const GITLAB_API_URL = process.env.GITLAB_API_URL || 'https://gitlab.com/api/v4';
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const USE_SSE = process.env.USE_SSE === 'true';
+const USE_STREAMABLE_HTTP = process.env.USE_STREAMABLE_HTTP === 'true';
 const GITLAB_READ_ONLY_MODE = process.env.GITLAB_READ_ONLY_MODE === 'true';
 /**
  * Authentication mode:
@@ -1844,11 +1845,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest)
 async function runServer() {
   try {
     if (AUTH_MODE === 'oauth') {
-      if (!USE_SSE) {
-        console.error("AUTH_MODE=oauth requires USE_SSE=true");
+      if (!USE_SSE && !USE_STREAMABLE_HTTP) {
+        console.error("AUTH_MODE=oauth requires USE_SSE=true or USE_STREAMABLE_HTTP=true");
         process.exit(1);
       }
-      await setupTransport(null, { port: PORT, useSSE: true, serverFactory: createMcpServer });
+      await setupTransport(null, {
+        port: PORT,
+        useSSE: USE_SSE,
+        useStreamableHttp: USE_STREAMABLE_HTTP,
+        serverFactory: createMcpServer
+      });
     } else {
       // PAT mode (default)
       if (!GITLAB_PERSONAL_ACCESS_TOKEN) {
@@ -1856,9 +1862,18 @@ async function runServer() {
         process.exit(1);
       }
       const server = createMcpServer(GITLAB_PERSONAL_ACCESS_TOKEN);
-      await setupTransport(server, { port: PORT, useSSE: USE_SSE });
+      await setupTransport(server, {
+        port: PORT,
+        useSSE: USE_SSE,
+        useStreamableHttp: USE_STREAMABLE_HTTP,
+      });
     }
-    console.error(`GitLab MCP Server running with ${USE_SSE ? 'SSE' : 'stdio'} transport (auth: ${AUTH_MODE})`);
+    const enabledTransports = [
+      USE_SSE ? 'sse' : null,
+      USE_STREAMABLE_HTTP ? 'streamable-http' : null,
+      !USE_SSE && !USE_STREAMABLE_HTTP ? 'stdio' : null,
+    ].filter(Boolean).join(', ');
+    console.error(`GitLab MCP Server running with ${enabledTransports} transport(s) (auth: ${AUTH_MODE})`);
   } catch (error) {
     console.error("Error starting server:", error);
     process.exit(1);
