@@ -169,10 +169,10 @@ export async function setupTransport(
 
           // Create a new SSE transport
           const transport = new SSEServerTransport("/messages", res);
-          
+
           // Store the transport by session ID
           transports[transport.sessionId] = transport;
-          
+
           // Set up cleanup handler
           req.on("close", () => {
             delete transports[transport.sessionId];
