@@ -76,6 +76,7 @@ jobs:
           VERSION="${{ needs.docker.outputs.version }}"
           sed -i "s/^version:.*/version: $VERSION/" chart/Chart.yaml
           sed -i "s/^appVersion:.*/appVersion: \"$VERSION\"/" chart/Chart.yaml
+          sed -i "s|^  repository: .*|  repository: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}|" chart/values.yaml
           sed -i "s/^  tag: .*/  tag: \"$VERSION\"/" chart/values.yaml
 
       - name: Package chart
