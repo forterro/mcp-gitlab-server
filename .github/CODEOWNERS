@@ -1,0 +1,31 @@
+# CODEOWNERS for yoda-digital/mcp-gitlab-server
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-security/customizing-your-repository/about-code-owners
+
+# Default — every PR pings @nalyk
+*                       @nalyk
+
+# Workflows, secrets, supply chain
+/.github/               @nalyk
+/.github/workflows/     @nalyk
+/.github/dependabot.yml @nalyk
+
+# Release-affecting files (auto-publish on push to main)
+/package.json           @nalyk
+/package-lock.json      @nalyk
+/CHANGELOG.md           @nalyk
+
+# Security policy and disclosure
+/SECURITY.md            @nalyk
+
+# Project conduct rules consumed by humans and AI agents
+/CLAUDE.md              @nalyk
+/AGENTS.md              @nalyk
+/CODE_OF_CONDUCT.md     @nalyk
+/CONTRIBUTING.md        @nalyk
+/ai_code_of_conduct.md  @nalyk
+
+# High-impact runtime surface — auth, transport, GitLab client
+/src/transport.ts       @nalyk
+/src/index.ts           @nalyk
+/src/gitlab-api.ts      @nalyk
+/src/schemas.ts         @nalyk

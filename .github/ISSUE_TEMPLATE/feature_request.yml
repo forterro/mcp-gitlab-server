@@ -1,0 +1,57 @@
+name: ✨ Feature request
+description: Propose a new tool, transport, or capability
+title: "[feat] "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The server already exposes 86 GitLab tools — please skim the README tool list and search [existing issues](https://github.com/yoda-digital/mcp-gitlab-server/issues?q=is%3Aissue) and [Discussions](https://github.com/yoda-digital/mcp-gitlab-server/discussions) before opening to avoid duplicates.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What can't you do today, or what's awkward about the current behavior?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: |
+        - For a new tool: name, GitLab API endpoint(s) it would wrap, expected input/output shape (schemas).
+        - For a new capability: what changes in transport, auth, config, or read-only mode.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      multiple: true
+      options:
+        - New MCP tool
+        - Existing tool enhancement
+        - Transport (stdio / SSE / Streamable HTTP)
+        - Authentication (PAT / OAuth)
+        - Read-only mode
+        - Container / Helm / CI/CD
+        - Documentation
+        - Performance / observability
+    validations:
+      required: true
+
+  - type: input
+    id: gitlab-api
+    attributes:
+      label: Related GitLab API endpoint(s)
+      description: If applicable, link to the GitLab REST API docs page(s).
+      placeholder: "https://docs.gitlab.com/api/..."
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds you've tried, or other tools/projects that solve this differently.

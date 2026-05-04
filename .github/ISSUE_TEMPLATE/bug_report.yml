@@ -1,0 +1,103 @@
+name: 🐛 Bug report
+description: Report a defect in the GitLab MCP server
+title: "[bug] "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug.
+
+        - **Security vulnerabilities** → [private vulnerability reporting](https://github.com/yoda-digital/mcp-gitlab-server/security/advisories/new), not a public issue. See [`SECURITY.md`](https://github.com/yoda-digital/mcp-gitlab-server/blob/main/SECURITY.md).
+        - **Questions / usage help** → use [Discussions](https://github.com/yoda-digital/mcp-gitlab-server/discussions).
+        - **Token leaks** → never paste tokens here. Redact `glpat-*`, `gitlab_*`, and any project paths if sensitive.
+
+  - type: input
+    id: server-version
+    attributes:
+      label: Server version
+      description: From `npm list @yoda.digital/gitlab-mcp-server` or the `version` field in `package.json`.
+      placeholder: "0.3.1"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: transport
+    attributes:
+      label: Transport
+      options:
+        - stdio (default)
+        - SSE (USE_SSE=true)
+        - Streamable HTTP (USE_STREAMABLE_HTTP=true)
+        - Multiple (specify in description)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: auth-mode
+    attributes:
+      label: Auth mode
+      options:
+        - PAT (default — static token from GITLAB_PERSONAL_ACCESS_TOKEN)
+        - OAuth (per-session bearer from Authorization header)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: gitlab-edition
+    attributes:
+      label: GitLab edition
+      options:
+        - "gitlab.com (SaaS)"
+        - "Self-managed CE"
+        - "Self-managed EE"
+        - "GitLab Dedicated"
+    validations:
+      required: true
+
+  - type: input
+    id: mcp-client
+    attributes:
+      label: MCP client
+      description: Which client is calling the server?
+      placeholder: "Claude Desktop 0.x / Cursor 0.x / Zed / VS Code MCP / custom"
+    validations:
+      required: true
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node.js version
+      description: Output of `node --version` on the host running the server.
+      placeholder: "v22.11.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Minimal sequence — tool name, arguments, expected vs actual.
+      placeholder: |
+        1. Call `list_projects` with `{ per_page: 100 }`
+        2. Observed: only 30 projects returned
+        3. Expected: 100 projects
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Server logs (stderr)
+      description: Redact tokens, project paths, and any sensitive identifiers before pasting.
+      render: shell
+
+  - type: checkboxes
+    id: agreement
+    attributes:
+      label: Confirmation
+      options:
+        - label: I have searched [existing issues](https://github.com/yoda-digital/mcp-gitlab-server/issues?q=is%3Aissue) and [Discussions](https://github.com/yoda-digital/mcp-gitlab-server/discussions).
+          required: true
+        - label: I have redacted any tokens, secrets, or sensitive project data from this report.
+          required: true
