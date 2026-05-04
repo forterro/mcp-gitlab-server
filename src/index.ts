@@ -150,7 +150,12 @@ const GITLAB_READ_ONLY_MODE = process.env.GITLAB_READ_ONLY_MODE === 'true';
  *   - "pat"   (default) : static Personal Access Token from GITLAB_PERSONAL_ACCESS_TOKEN env var
  *   - "oauth" : per-connection Bearer token forwarded in each SSE request Authorization header
  */
-const AUTH_MODE = (process.env.AUTH_MODE || 'pat') as 'pat' | 'oauth';
+const AUTH_MODE_RAW = (process.env.AUTH_MODE || 'pat').toLowerCase();
+if (AUTH_MODE_RAW !== 'pat' && AUTH_MODE_RAW !== 'oauth') {
+  console.error(`Invalid AUTH_MODE="${process.env.AUTH_MODE}". Must be "pat" or "oauth".`);
+  process.exit(1);
+}
+const AUTH_MODE: 'pat' | 'oauth' = AUTH_MODE_RAW as 'pat' | 'oauth';
 
 // Helper function to convert Zod schema to JSON schema with proper type
 function createJsonSchema(schema: z.ZodType<any>) {

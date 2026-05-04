@@ -7,6 +7,23 @@ import { createServer, IncomingMessage, ServerResponse } from "http";
 import { parse } from "url";
 
 /**
+ * CORS origin allowlist parsed from CORS_ALLOW_ORIGINS env var.
+ * - When empty AND AUTH_MODE=pat: permissive `*` (single-tenant local dev).
+ * - When empty AND AUTH_MODE=oauth: no Allow-Origin header (deny browser access).
+ * - When set: only listed origins receive the Allow-Origin header.
+ *
+ * Read lazily at request time to support runtime configuration and testing.
+ */
+function getCorsAllowedOrigins(): string[] {
+  return (process.env.CORS_ALLOW_ORIGINS ?? '')
+    .split(',').map(s => s.trim()).filter(Boolean);
+}
+
+function getAuthModeEnv(): string {
+  return (process.env.AUTH_MODE || 'pat').toLowerCase();
+}
+
+/**
  * Transport configuration options
  */
 export interface TransportOptions {
@@ -71,8 +88,19 @@ export async function setupTransport(
 
     // Create raw HTTP server
     const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse) => {
-      // Enable CORS
-      res.setHeader('Access-Control-Allow-Origin', '*');
+      // CORS handling — restrict origins in OAuth mode
+      const corsOrigins = getCorsAllowedOrigins();
+      const authMode = getAuthModeEnv();
+      const requestOrigin = req.headers.origin;
+      if (requestOrigin && corsOrigins.length > 0 && corsOrigins.includes(requestOrigin)) {
+        res.setHeader('Access-Control-Allow-Origin', requestOrigin);
+        res.setHeader('Vary', 'Origin');
+      } else if (corsOrigins.length === 0 && authMode === 'pat') {
+        // Single-tenant local dev — keep permissive default
+        res.setHeader('Access-Control-Allow-Origin', '*');
+      }
+      // else: no Allow-Origin header → browser refuses to surface the response
+
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, MCP-Session-Id');
 
@@ -86,8 +114,15 @@ export async function setupTransport(
 
       try {
         if (req.method === 'GET' && pathname === '/healthz') {
-          res.writeHead(200, { 'Content-Type': 'text/plain' });
-          res.end('ok');
+          const sessionCount = Object.keys(transports).length;
+          const maxSessions = parseInt(process.env.HEALTHZ_MAX_SESSIONS || '10000', 10);
+          if (sessionCount > maxSessions) {
+            res.writeHead(503, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'unhealthy', reason: 'session_limit_exceeded', sessions: sessionCount }));
+            return;
+          }
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ status: 'ok', sessions: sessionCount }));
         }
         else if (useStreamableHttp && pathname === '/mcp' && (req.method === 'GET' || req.method === 'POST' || req.method === 'DELETE')) {
           const sessionIdHeader = req.headers['mcp-session-id'];
@@ -109,6 +144,18 @@ export async function setupTransport(
                 id: null
               }));
               return;
+            } else {
+              // Session ID was provided but not found — reject
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({
+                jsonrpc: '2.0',
+                error: {
+                  code: -32000,
+                  message: 'Bad Request: Session not found or expired'
+                },
+                id: null
+              }));
+              return;
             }
           }
 
@@ -120,21 +167,31 @@ export async function setupTransport(
               return;
             }
 
-            transport = new StreamableHTTPServerTransport({
+            let initializedSid: string | undefined;
+            const newTransport = new StreamableHTTPServerTransport({
               sessionIdGenerator: () => randomUUID(),
-              onsessioninitialized: (newSessionId: string) => {
-                transports[newSessionId] = transport!;
+              onsessioninitialized: (sid: string) => {
+                initializedSid = sid;
+                transports[sid] = newTransport;
               }
             });
 
-            transport.onclose = () => {
-              const sid = transport!.sessionId;
-              if (sid) {
+            newTransport.onclose = () => {
+              const sid = newTransport.sessionId;
+              if (sid && transports[sid] === newTransport) {
                 delete transports[sid];
               }
             };
 
-            await sessionServer.connect(transport);
+            try {
+              await sessionServer.connect(newTransport);
+            } catch (connectError) {
+              // Clean up if connect fails — onsessioninitialized may have fired
+              if (initializedSid) delete transports[initializedSid];
+              try { await newTransport.close?.(); } catch { /* best-effort */ }
+              throw connectError;
+            }
+            transport = newTransport;
           }
 
           if (!transport) {
@@ -168,18 +225,24 @@ export async function setupTransport(
           }
 
           // Create a new SSE transport
-          const transport = new SSEServerTransport("/messages", res);
+          const sseTransport = new SSEServerTransport("/messages", res);
 
-          // Store the transport by session ID
-          transports[transport.sessionId] = transport;
+          // Idempotent cleanup helper
+          const cleanupSse = () => {
+            if (transports[sseTransport.sessionId] === sseTransport) {
+              delete transports[sseTransport.sessionId];
+            }
+          };
 
-          // Set up cleanup handler
-          req.on("close", () => {
-            delete transports[transport.sessionId];
-          });
+          // Clean up on TCP close
+          req.on("close", cleanupSse);
 
-          // Connect the server to the transport
-          await sessionServer.connect(transport);
+          // Clean up on SDK-initiated graceful close
+          sseTransport.onclose = cleanupSse;
+
+          // Connect the server to the transport — only register on success
+          await sessionServer.connect(sseTransport);
+          transports[sseTransport.sessionId] = sseTransport;
         }
         else if (req.method === 'POST' && pathname === '/messages') {
           if (!useSSE) {

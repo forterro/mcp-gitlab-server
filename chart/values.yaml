@@ -20,6 +20,11 @@ config:
   # "oauth" : per-connection Bearer token forwarded in the SSE Authorization header
   #           (requires USE_SSE=true; no static secret needed)
   AUTH_MODE: "pat"
+  # -- Comma-separated list of allowed CORS origins.
+  # In PAT mode: defaults to "*" if empty. In OAuth mode: no default (deny).
+  CORS_ALLOW_ORIGINS: ""
+  # -- Max sessions before /healthz returns 503 (default 10000)
+  HEALTHZ_MAX_SESSIONS: "10000"
 
 # -- Sensitive values injected as env vars from a Secret.
 # Set these or use existingSecret.
