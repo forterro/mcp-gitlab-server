@@ -84,4 +84,4 @@ jobs:
       - name: Push chart to ghcr.io
         run: |
           VERSION="${{ needs.docker.outputs.version }}"
-          helm push .helm-pkg/${{ env.CHART_NAME }}-$VERSION.tgz oci://${{ env.REGISTRY }}/yoda-digital/charts
+          helm push .helm-pkg/${{ env.CHART_NAME }}-$VERSION.tgz oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts
