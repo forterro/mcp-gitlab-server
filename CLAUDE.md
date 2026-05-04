@@ -16,7 +16,9 @@ npm start        # Run compiled server
 npm run dev      # Development with ts-node hot reload
 ```
 
-**Note**: `npm test` is a placeholder (exits with error). No linting command exists; TypeScript strict mode handles type checking.
+**Note**: `npm test` runs vitest (`vitest run`). Existing specs live alongside source: `src/formatters.test.ts`, `src/schemas.test.ts`, `src/gitlab-api.test.ts`. New behavior (transport, OAuth, /healthz, etc.) should ship with vitest coverage. No dedicated linter is configured; TypeScript strict mode handles type checking.
+
+**Security:** Vulnerabilities go through [GitHub Private Vulnerability Reporting](https://github.com/yoda-digital/mcp-gitlab-server/security/advisories/new) — never via public issues. Threat model and scope are in `SECURITY.md`.
 
 ## Architecture
 
