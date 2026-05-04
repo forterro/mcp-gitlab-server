@@ -11,20 +11,20 @@
   <a href="https://www.npmjs.com/package/@yoda.digital/gitlab-mcp-server">
     <img alt="npm downloads" src="https://img.shields.io/npm/dt/@yoda.digital/gitlab-mcp-server">
   </a>
-  <a href="https://github.com/forterro/mcp-gitlab-server/stargazers">
-    <img alt="GitHub stars" src="https://img.shields.io/github/stars/forterro/mcp-gitlab-server?style=social">
+  <a href="https://github.com/yoda-digital/mcp-gitlab-server/stargazers">
+    <img alt="GitHub stars" src="https://img.shields.io/github/stars/yoda-digital/mcp-gitlab-server?style=social">
   </a>
-  <a href="https://github.com/forterro/mcp-gitlab-server/commits/main">
-    <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/forterro/mcp-gitlab-server">
+  <a href="https://github.com/yoda-digital/mcp-gitlab-server/commits/main">
+    <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/yoda-digital/mcp-gitlab-server">
   </a>
-  <a href="https://github.com/forterro/mcp-gitlab-server/blob/main/LICENSE">
+  <a href="https://github.com/yoda-digital/mcp-gitlab-server/blob/main/LICENSE">
     <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg">
   </a>
-  <a href="https://github.com/forterro/mcp-gitlab-server/issues">
-    <img alt="GitHub issues" src="https://img.shields.io/github/issues/forterro/mcp-gitlab-server">
+  <a href="https://github.com/yoda-digital/mcp-gitlab-server/issues">
+    <img alt="GitHub issues" src="https://img.shields.io/github/issues/yoda-digital/mcp-gitlab-server">
   </a>
-  <a href="https://github.com/forterro/mcp-gitlab-server/pulls">
-    <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/forterro/mcp-gitlab-server">
+  <a href="https://github.com/yoda-digital/mcp-gitlab-server/pulls">
+    <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/yoda-digital/mcp-gitlab-server">
   </a>
 </p>
 
@@ -38,7 +38,7 @@
 
 ### **86 Tools** — The Most Comprehensive GitLab MCP Available
 
-| Feature | **forterro/mcp-gitlab-server** ⭐ | [zerefel/gitlab-mcp](https://github.com/zerefel/gitlab-mcp) 1023★ | [rifqi96/mcp-gitlab](https://github.com/rifqi96/mcp-gitlab) 18★ | [HainanZhao/mcp-gitlab-jira](https://github.com/HainanZhao/mcp-gitlab-jira) 9★ |
+| Feature | **yoda-digital/mcp-gitlab-server** ⭐ | [zerefel/gitlab-mcp](https://github.com/zerefel/gitlab-mcp) 1023★ | [rifqi96/mcp-gitlab](https://github.com/rifqi96/mcp-gitlab) 18★ | [HainanZhao/mcp-gitlab-jira](https://github.com/HainanZhao/mcp-gitlab-jira) 9★ |
 |---------|--------------------------------------|------------------------------------------------------------------|------------------------------------------------------------------|---------------------------------------------------------------------------------|
 | **Total Tools** | **86** | ~15 | ~12 | ~20 |
 | **npm Package** | ✅ Published | ❌ Source only | ❌ Source only | ❌ Source only |
@@ -103,7 +103,7 @@ npm install @yoda.digital/gitlab-mcp-server
 #### From Source
 
 ```bash
-git clone https://github.com/forterro/mcp-gitlab-server.git
+git clone https://github.com/yoda-digital/mcp-gitlab-server.git
 cd mcp-gitlab-server
 npm install
 npm run build
@@ -154,13 +154,13 @@ See our [Cursor Integration Guide](./docs/CURSOR_INTEGRATION.md) for step-by-ste
 Build and run the production image:
 
 ```bash
-docker build -t ghcr.io/forterro/gitlab-mcp:local .
+docker build -t ghcr.io/yoda-digital/gitlab-mcp:local .
 
 docker run --rm -p 3000:3000 \
   -e GITLAB_PERSONAL_ACCESS_TOKEN=glpat-xxxx \
   -e GITLAB_API_URL=https://gitlab.example.com/api/v4 \
   -e USE_SSE=true \
-  ghcr.io/forterro/gitlab-mcp:local
+  ghcr.io/yoda-digital/gitlab-mcp:local
 ```
 
 Server endpoints:
@@ -199,7 +199,7 @@ helm upgrade --install gitlab-mcp ./chart \
 The workflow `.github/workflows/build.yml` now:
 
 - Builds and pushes Docker image to `ghcr.io/<org>/<repo>`
-- Packages and pushes Helm chart to `oci://ghcr.io/forterro/charts`
+- Packages and pushes Helm chart to `oci://ghcr.io/yoda-digital/charts`
 - Uses git tags (`vX.Y.Z`) for release versions
 - Uses `0.0.0-<sha>` versioning on branch builds
 
@@ -281,8 +281,8 @@ GitLab is powerful, but most AI assistants can't leverage it effectively. Existi
 ## 🔗 Links
 
 - [npm Package](https://www.npmjs.com/package/@yoda.digital/gitlab-mcp-server)
-- [GitHub Repository](https://github.com/forterro/mcp-gitlab-server)
-- [Report Issues](https://github.com/forterro/mcp-gitlab-server/issues)
+- [GitHub Repository](https://github.com/yoda-digital/mcp-gitlab-server)
+- [Report Issues](https://github.com/yoda-digital/mcp-gitlab-server/issues)
 - [MCP Documentation](https://modelcontextprotocol.io)
 
 ---

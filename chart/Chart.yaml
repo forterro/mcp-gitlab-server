@@ -10,8 +10,8 @@ keywords:
   - gitlab
   - devops
 
-home: https://github.com/forterro/mcp-gitlab-server
+home: https://github.com/yoda-digital/mcp-gitlab-server
 
 maintainers:
-  - name: Forterro IT
-    url: https://github.com/forterro
+  - name: Yoda Digital
+    url: https://github.com/yoda-digital

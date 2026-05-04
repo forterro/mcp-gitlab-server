@@ -10,7 +10,7 @@ on:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}  # forterro/mcp-gitlab-server
+  IMAGE_NAME: ${{ github.repository }}  # yoda-digital/mcp-gitlab-server
   CHART_NAME: gitlab-mcp
 
 permissions:
@@ -84,4 +84,4 @@ jobs:
       - name: Push chart to ghcr.io
         run: |
           VERSION="${{ needs.docker.outputs.version }}"
-          helm push .helm-pkg/${{ env.CHART_NAME }}-$VERSION.tgz oci://${{ env.REGISTRY }}/forterro/charts
+          helm push .helm-pkg/${{ env.CHART_NAME }}-$VERSION.tgz oci://${{ env.REGISTRY }}/yoda-digital/charts
